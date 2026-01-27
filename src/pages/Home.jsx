@@ -117,15 +117,15 @@ function Home() {
           <ol className="space-y-3 text-gray-700">
             <li className="flex items-start">
               <span className="font-bold text-indigo-600 mr-2">1.</span>
-              <span>문서를 3개 이상 업로드하세요</span>
+              <span>참조할 문서를 업로드하세요</span>
             </li>
             <li className="flex items-start">
               <span className="font-bold text-indigo-600 mr-2">2.</span>
-              <span>"문체 학습" 메뉴에서 학습을 진행하세요</span>
+              <span>"문서 생성" 메뉴에서 참조 문서를 선택하세요</span>
             </li>
             <li className="flex items-start">
               <span className="font-bold text-indigo-600 mr-2">3.</span>
-              <span>"문서 생성" 메뉴에서 새 문서를 자동 생성하세요</span>
+              <span>주제와 키워드를 입력하면 참조 문서의 문체로 새 문서가 생성됩니다</span>
             </li>
           </ol>
         </div>

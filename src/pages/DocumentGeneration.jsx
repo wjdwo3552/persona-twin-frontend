@@ -54,6 +54,11 @@ function DocumentGeneration() {
       return;
     }
 
+    if (!formData.referenceDocumentId) {
+      setMessage('참조 문서를 선택해주세요.');
+      return;
+    }
+
     setGenerating(true);
     setMessage('');
     setGeneratedDocument(null);
@@ -131,7 +136,7 @@ function DocumentGeneration() {
             문서 자동 생성
           </h1>
           <p className="text-xl text-gray-600">
-            학습된 문체로 새로운 문서를 자동으로 생성합니다
+            참조 문서의 문체를 따라 새로운 문서를 자동으로 생성합니다
           </p>
         </div>
 
@@ -241,7 +246,7 @@ function DocumentGeneration() {
               {/* 참조 문서 선택 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  참조 문서 (선택)
+                  참조 문서 <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="referenceDocumentId"
@@ -250,7 +255,7 @@ function DocumentGeneration() {
                   className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
                   disabled={loadingDocs}
                 >
-                  <option value="">선택 안 함 (전체 문체 학습 기반)</option>
+                  <option value="">-- 문서를 선택하세요 --</option>
                   {documents.map(doc => (
                     <option key={doc.documentId} value={doc.documentId}>
                       {doc.title} - {doc.documentType}
@@ -258,7 +263,7 @@ function DocumentGeneration() {
                   ))}
                 </select>
                 <p className="mt-1 text-xs text-gray-500">
-                  특정 문서의 문체를 참고하여 작성하려면 선택하세요 (예: "저번 주 기획서 문체로 작성해줘")
+                  선택한 문서의 문체를 따라 새 문서를 생성합니다
                 </p>
               </div>
 
