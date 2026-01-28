@@ -6,6 +6,7 @@ function Home() {
   const [userId] = useState(1); // 테스트용 고정
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
+  const [summarize, setSummarize] = useState(false); // 자동 요약 옵션
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -25,6 +26,7 @@ function Home() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('userId', userId);
+      formData.append('summarize', summarize);
 
       const response = await api.post('/documents/upload', formData, {
         headers: {
@@ -79,6 +81,20 @@ function Home() {
                   선택된 파일: {file.name}
                 </p>
               )}
+            </div>
+
+            {/* 자동 요약 옵션 */}
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="summarize"
+                checked={summarize}
+                onChange={(e) => setSummarize(e.target.checked)}
+                className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              />
+              <label htmlFor="summarize" className="ml-2 text-sm text-gray-700">
+                자동 요약 (GPT 토큰 사용)
+              </label>
             </div>
 
             {/* 업로드 버튼 */}
