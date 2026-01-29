@@ -68,12 +68,12 @@ function Home() {
             {/* 파일 선택 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                문서 파일 선택 (.txt, .docx)
+                문서 파일 선택 (.txt, .docx, .pdf)
               </label>
               <input
                 type="file"
                 onChange={handleFileChange}
-                accept=".txt,.docx"
+                accept=".txt,.docx,.pdf"
                 className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
               />
               {file && (
