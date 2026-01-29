@@ -8,14 +8,26 @@ function DocumentList() {
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [docContent, setDocContent] = useState(null);
   const [contentLoading, setContentLoading] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [filterType, setFilterType] = useState('');
   const userId = 1;
 
-  // 문서 목록 불러오기
-  const fetchDocuments = async () => {
+  const documentTypes = ['보고서', '제안서', '이메일', '기획서', '메모'];
+
+  // 문서 목록 불러오기 (검색 포함)
+  const fetchDocuments = async (keyword = '', type = '') => {
     setLoading(true);
     setError('');
     try {
-      const response = await api.get(`/mysql/documents/user/${userId}`);
+      const params = new URLSearchParams();
+      if (keyword) params.append('keyword', keyword);
+      if (type) params.append('type', type);
+
+      const url = params.toString()
+        ? `/mysql/documents/user/${userId}/search?${params.toString()}`
+        : `/mysql/documents/user/${userId}`;
+
+      const response = await api.get(url);
       setDocuments(response.data);
     } catch (err) {
       setError('문서 목록을 불러오는데 실패했습니다.');
@@ -23,6 +35,18 @@ function DocumentList() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 검색 실행
+  const handleSearch = () => {
+    fetchDocuments(searchKeyword, filterType);
+  };
+
+  // 필터 초기화
+  const handleReset = () => {
+    setSearchKeyword('');
+    setFilterType('');
+    fetchDocuments();
   };
 
   // 문서 상세 내용 불러오기
@@ -109,11 +133,47 @@ function DocumentList() {
                 문서 목록 ({documents.length}개)
               </h2>
               <button
-                onClick={fetchDocuments}
+                onClick={() => fetchDocuments(searchKeyword, filterType)}
                 className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 새로고침
               </button>
+            </div>
+
+            {/* 검색 및 필터 */}
+            <div className="flex gap-2 mb-4">
+              <input
+                type="text"
+                placeholder="제목 검색..."
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-indigo-500"
+              />
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-indigo-500"
+              >
+                <option value="">전체 타입</option>
+                {documentTypes.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+              <button
+                onClick={handleSearch}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors"
+              >
+                검색
+              </button>
+              {(searchKeyword || filterType) && (
+                <button
+                  onClick={handleReset}
+                  className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm transition-colors"
+                >
+                  초기화
+                </button>
+              )}
             </div>
 
             {loading ? (
