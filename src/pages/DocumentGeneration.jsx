@@ -99,18 +99,28 @@ function DocumentGeneration() {
   };
 
   // 문서 다운로드
-  const handleDownload = () => {
-    if (!generatedDocument || !generatedDocument.content) return;
+  const handleDownload = async (format = 'txt') => {
+    if (!generatedDocument || !generatedDocument.documentId) return;
 
-    const blob = new Blob([generatedDocument.content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${formData.topic}_${new Date().getTime()}.txt`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    try {
+      const response = await api.get(
+        `/integrated/documents/${generatedDocument.documentId}/download?format=${format}`,
+        { responseType: 'blob' }
+      );
+
+      const blob = new Blob([response.data]);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${formData.topic}_${new Date().getTime()}.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('다운로드 실패:', error);
+      setMessage('다운로드에 실패했습니다.');
+    }
   };
 
   // 새 문서 생성
@@ -319,10 +329,16 @@ function DocumentGeneration() {
               {generatedDocument && (
                 <div className="flex gap-2">
                   <button
-                    onClick={handleDownload}
+                    onClick={() => handleDownload('txt')}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
                   >
-                    다운로드
+                    TXT
+                  </button>
+                  <button
+                    onClick={() => handleDownload('docx')}
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition-all"
+                  >
+                    DOCX
                   </button>
                   <button
                     onClick={handleReset}

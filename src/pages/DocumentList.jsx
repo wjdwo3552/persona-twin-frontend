@@ -87,6 +87,30 @@ function DocumentList() {
     fetchDocumentContent(doc.documentId);
   };
 
+  // 문서 다운로드
+  const handleDownload = async (documentId, title, format = 'txt') => {
+    try {
+      const response = await api.get(
+        `/integrated/documents/${documentId}/download?format=${format}`,
+        { responseType: 'blob' }
+      );
+
+      const blob = new Blob([response.data]);
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const safeTitle = title ? title.replace(/[^a-zA-Z0-9가-힣]/g, '_') : 'document';
+      link.download = `${safeTitle}.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('다운로드에 실패했습니다.');
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchDocuments();
   }, []);
@@ -239,7 +263,33 @@ function DocumentList() {
         {/* 문서 상세 */}
         <div className="w-1/2">
           <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">문서 상세</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">문서 상세</h2>
+              {selectedDoc && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleDownload(selectedDoc.documentId, selectedDoc.title, 'txt')}
+                    className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  >
+                    TXT
+                  </button>
+                  <button
+                    onClick={() => handleDownload(selectedDoc.documentId, selectedDoc.title, 'docx')}
+                    className="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+                  >
+                    DOCX
+                  </button>
+                  {docContent?.summary && (
+                    <button
+                      onClick={() => handleDownload(selectedDoc.documentId, selectedDoc.title, 'summary')}
+                      className="px-3 py-1 text-sm bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                    >
+                      요약
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
 
             {!selectedDoc ? (
               <div className="text-center py-20 text-gray-500">
