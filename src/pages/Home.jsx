@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import api from '../api/axios';
 
 function Home() {
@@ -7,11 +7,52 @@ function Home() {
   const userId = user.userId;
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
-  const [summarize, setSummarize] = useState(false); // 자동 요약 옵션
+  const [summarize, setSummarize] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const allowedTypes = ['.txt', '.docx', '.pdf'];
+
+  const validateFile = (file) => {
+    const extension = '.' + file.name.split('.').pop().toLowerCase();
+    return allowedTypes.includes(extension);
+  };
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    setMessage('');
+    const selectedFile = e.target.files[0];
+    if (selectedFile && validateFile(selectedFile)) {
+      setFile(selectedFile);
+      setMessage('');
+    } else if (selectedFile) {
+      setMessage('지원하지 않는 파일 형식입니다. (.txt, .docx, .pdf만 가능)');
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const droppedFile = e.dataTransfer.files[0];
+    if (droppedFile && validateFile(droppedFile)) {
+      setFile(droppedFile);
+      setMessage('');
+    } else if (droppedFile) {
+      setMessage('지원하지 않는 파일 형식입니다. (.txt, .docx, .pdf만 가능)');
+    }
+  };
+
+  const handleDropZoneClick = () => {
+    fileInputRef.current?.click();
   };
 
   const handleUpload = async () => {
@@ -66,22 +107,52 @@ function Home() {
           </h2>
 
           <div className="space-y-6">
-            {/* 파일 선택 */}
+            {/* 드래그앤드롭 영역 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 문서 파일 선택 (.txt, .docx, .pdf)
               </label>
-              <input
-                type="file"
-                onChange={handleFileChange}
-                accept=".txt,.docx,.pdf"
-                className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
-              />
-              {file && (
-                <p className="mt-2 text-sm text-gray-600">
-                  선택된 파일: {file.name}
-                </p>
-              )}
+              <div
+                onClick={handleDropZoneClick}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
+                  isDragging
+                    ? 'border-indigo-500 bg-indigo-50'
+                    : file
+                    ? 'border-green-400 bg-green-50'
+                    : 'border-gray-300 hover:border-indigo-400 hover:bg-gray-50'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  onChange={handleFileChange}
+                  accept=".txt,.docx,.pdf"
+                  className="hidden"
+                />
+
+                {file ? (
+                  <div className="space-y-2">
+                    <svg className="w-12 h-12 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-green-700 font-medium">{file.name}</p>
+                    <p className="text-sm text-gray-500">클릭하여 다른 파일 선택</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <svg className="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <p className="text-gray-600 font-medium">
+                      {isDragging ? '여기에 놓으세요!' : '파일을 끌어다 놓거나 클릭하세요'}
+                    </p>
+                    <p className="text-sm text-gray-400">.txt, .docx, .pdf 지원</p>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* 자동 요약 옵션 */}
@@ -108,7 +179,7 @@ function Home() {
                   : 'bg-indigo-600 hover:bg-indigo-700 shadow-lg hover:shadow-xl'
               }`}
             >
-              {uploading ? '업로드 중...' : '📤 업로드'}
+              {uploading ? '업로드 중...' : '업로드'}
             </button>
 
             {/* 메시지 */}
