@@ -47,22 +47,22 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
         {/* 헤더 */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-800 mb-4">
-            📝 Persona Twin
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-3xl sm:text-5xl font-bold text-gray-800 mb-4">
+            Persona Twin
           </h1>
-          <p className="text-xl text-gray-600">
+          <p className="text-base sm:text-xl text-gray-600">
             AI가 당신의 문체를 학습해서 문서를 작성합니다
           </p>
         </div>
 
         {/* 업로드 카드 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            📤 문서 업로드
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-6">
+            문서 업로드
           </h2>
 
           <div className="space-y-6">
@@ -127,9 +127,9 @@ function Home() {
         </div>
 
         {/* 안내 */}
-        <div className="mt-8 bg-white rounded-2xl shadow-xl p-8">
-          <h3 className="text-xl font-bold text-gray-800 mb-4">
-            🎯 사용 방법
+        <div className="mt-6 sm:mt-8 bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">
+            사용 방법
           </h3>
           <ol className="space-y-3 text-gray-700">
             <li className="flex items-start">

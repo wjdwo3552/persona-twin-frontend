@@ -149,9 +149,9 @@ function DocumentList() {
         <p className="text-gray-600">업로드한 문서를 조회하고 관리할 수 있습니다.</p>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* 문서 목록 */}
-        <div className="w-1/2">
+        <div className="w-full lg:w-1/2">
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">
@@ -262,12 +262,12 @@ function DocumentList() {
         </div>
 
         {/* 문서 상세 */}
-        <div className="w-1/2">
-          <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
-            <div className="flex justify-between items-center mb-4">
+        <div className="w-full lg:w-1/2">
+          <div className="bg-white rounded-xl shadow-lg p-6 lg:sticky lg:top-24">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
               <h2 className="text-xl font-semibold text-gray-800">문서 상세</h2>
               {selectedDoc && (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => handleDownload(selectedDoc.documentId, selectedDoc.title, 'txt')}
                     className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
