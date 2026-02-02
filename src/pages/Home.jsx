@@ -3,7 +3,8 @@ import api from '../api/axios';
 
 function Home() {
   const [file, setFile] = useState(null);
-  const [userId] = useState(1); // 테스트용 고정
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userId = user.userId;
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [summarize, setSummarize] = useState(false); // 자동 요약 옵션

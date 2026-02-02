@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import api from '../api/axios';
 
 function DocumentGeneration() {
-  const [userId] = useState(1); // 테스트용 고정
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userId = user.userId;
   const [formData, setFormData] = useState({
     topic: '',
     documentType: '보고서',

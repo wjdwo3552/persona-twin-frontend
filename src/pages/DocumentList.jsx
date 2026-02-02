@@ -10,7 +10,8 @@ function DocumentList() {
   const [contentLoading, setContentLoading] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filterType, setFilterType] = useState('');
-  const userId = 1;
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const userId = user.userId;
 
   const documentTypes = ['보고서', '제안서', '이메일', '기획서', '메모'];
 
