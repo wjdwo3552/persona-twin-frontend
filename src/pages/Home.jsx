@@ -18,18 +18,25 @@ function Home() {
   }
 
   const allowedTypes = ['.txt', '.docx', '.pdf'];
+  const maxFileSize = 10 * 1024 * 1024; // 10MB
 
   const validateFile = (file) => {
     const extension = '.' + file.name.split('.').pop().toLowerCase();
-    return allowedTypes.includes(extension);
+    if (!allowedTypes.includes(extension)) {
+      toast.error('지원하지 않는 파일 형식입니다. (.txt, .docx, .pdf만 가능)');
+      return false;
+    }
+    if (file.size > maxFileSize) {
+      toast.error('파일 크기는 10MB를 초과할 수 없습니다.');
+      return false;
+    }
+    return true;
   };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile && validateFile(selectedFile)) {
       setFile(selectedFile);
-    } else if (selectedFile) {
-      toast.error('지원하지 않는 파일 형식입니다. (.txt, .docx, .pdf만 가능)');
     }
   };
 
@@ -50,8 +57,6 @@ function Home() {
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile && validateFile(droppedFile)) {
       setFile(droppedFile);
-    } else if (droppedFile) {
-      toast.error('지원하지 않는 파일 형식입니다. (.txt, .docx, .pdf만 가능)');
     }
   };
 
@@ -113,7 +118,7 @@ function Home() {
             {/* 드래그앤드롭 영역 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                문서 파일 선택 (.txt, .docx, .pdf)
+                문서 파일 선택 (.txt, .docx, .pdf, 최대 10MB)
               </label>
               <div
                 onClick={handleDropZoneClick}
@@ -152,7 +157,7 @@ function Home() {
                     <p className="text-gray-600 font-medium">
                       {isDragging ? '여기에 놓으세요!' : '파일을 끌어다 놓거나 클릭하세요'}
                     </p>
-                    <p className="text-sm text-gray-400">.txt, .docx, .pdf 지원</p>
+                    <p className="text-sm text-gray-400">.txt, .docx, .pdf 지원 (최대 10MB)</p>
                   </div>
                 )}
               </div>
