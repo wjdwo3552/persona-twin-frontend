@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 
@@ -21,9 +22,15 @@ function DocumentGeneration() {
 
   // 컴포넌트 마운트 시 문서 목록 조회
   useEffect(() => {
-    fetchDocuments();
+    if (userId) {
+      fetchDocuments();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [userId]);
+
+  if (!userId) {
+    return <Navigate to="/login" replace />;
+  }
 
   // 사용자 문서 목록 조회
   const fetchDocuments = async () => {

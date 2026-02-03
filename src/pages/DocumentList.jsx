@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Navigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 
@@ -16,6 +17,10 @@ function DocumentList() {
   const toast = useToast();
 
   const documentTypes = ['보고서', '제안서', '이메일', '기획서', '메모'];
+
+  if (!userId) {
+    return <Navigate to="/login" replace />;
+  }
 
   // 문서 목록 불러오기 (검색 포함)
   const fetchDocuments = async (keyword = '', type = '') => {

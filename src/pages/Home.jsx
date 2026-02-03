@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { Navigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 
@@ -11,6 +12,10 @@ function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
   const toast = useToast();
+
+  if (!userId) {
+    return <Navigate to="/login" replace />;
+  }
 
   const allowedTypes = ['.txt', '.docx', '.pdf'];
 
