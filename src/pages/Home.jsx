@@ -8,6 +8,7 @@ function Home() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userId = user.userId;
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [summarize, setSummarize] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
@@ -71,6 +72,7 @@ function Home() {
     }
 
     setUploading(true);
+    setUploadProgress(0);
 
     try {
       const formData = new FormData();
@@ -82,6 +84,10 @@ function Home() {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          setUploadProgress(percent);
+        },
       });
 
       toast.success('업로드 성공!');
@@ -90,6 +96,7 @@ function Home() {
       toast.error('업로드 실패: ' + error.message);
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -176,17 +183,27 @@ function Home() {
             </div>
 
             {/* 업로드 버튼 */}
-            <button
-              onClick={handleUpload}
-              disabled={uploading || !file}
-              className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-all ${
-                uploading || !file
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-indigo-600 hover:bg-indigo-700 shadow-lg hover:shadow-xl'
-              }`}
-            >
-              {uploading ? '업로드 중...' : '업로드'}
-            </button>
+            <div className="space-y-2">
+              <button
+                onClick={handleUpload}
+                disabled={uploading || !file}
+                className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-all ${
+                  uploading || !file
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-indigo-600 hover:bg-indigo-700 shadow-lg hover:shadow-xl'
+                }`}
+              >
+                {uploading ? `업로드 중... ${uploadProgress}%` : '업로드'}
+              </button>
+              {uploading && (
+                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              )}
+            </div>
 
           </div>
         </div>
