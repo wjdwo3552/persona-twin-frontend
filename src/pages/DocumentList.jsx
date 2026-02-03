@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
+import { useToast } from '../context/ToastContext';
 
 function DocumentList() {
   const [documents, setDocuments] = useState([]);
@@ -12,6 +13,7 @@ function DocumentList() {
   const [filterType, setFilterType] = useState('');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userId = user.userId;
+  const toast = useToast();
 
   const documentTypes = ['보고서', '제안서', '이메일', '기획서', '메모'];
 
@@ -75,9 +77,9 @@ function DocumentList() {
         setSelectedDoc(null);
         setDocContent(null);
       }
-      alert('문서가 삭제되었습니다.');
+      toast.success('문서가 삭제되었습니다.');
     } catch (err) {
-      alert('문서 삭제에 실패했습니다.');
+      toast.error('문서 삭제에 실패했습니다.');
       console.error(err);
     }
   };
@@ -107,7 +109,7 @@ function DocumentList() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (err) {
-      alert('다운로드에 실패했습니다.');
+      toast.error('다운로드에 실패했습니다.');
       console.error(err);
     }
   };

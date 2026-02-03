@@ -1,15 +1,16 @@
 import { useState, useRef } from 'react';
 import api from '../api/axios';
+import { useToast } from '../context/ToastContext';
 
 function Home() {
   const [file, setFile] = useState(null);
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userId = user.userId;
   const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState('');
   const [summarize, setSummarize] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
+  const toast = useToast();
 
   const allowedTypes = ['.txt', '.docx', '.pdf'];
 
@@ -22,9 +23,8 @@ function Home() {
     const selectedFile = e.target.files[0];
     if (selectedFile && validateFile(selectedFile)) {
       setFile(selectedFile);
-      setMessage('');
     } else if (selectedFile) {
-      setMessage('지원하지 않는 파일 형식입니다. (.txt, .docx, .pdf만 가능)');
+      toast.error('지원하지 않는 파일 형식입니다. (.txt, .docx, .pdf만 가능)');
     }
   };
 
@@ -45,9 +45,8 @@ function Home() {
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile && validateFile(droppedFile)) {
       setFile(droppedFile);
-      setMessage('');
     } else if (droppedFile) {
-      setMessage('지원하지 않는 파일 형식입니다. (.txt, .docx, .pdf만 가능)');
+      toast.error('지원하지 않는 파일 형식입니다. (.txt, .docx, .pdf만 가능)');
     }
   };
 
@@ -57,12 +56,11 @@ function Home() {
 
   const handleUpload = async () => {
     if (!file) {
-      setMessage('파일을 선택해주세요');
+      toast.warning('파일을 선택해주세요');
       return;
     }
 
     setUploading(true);
-    setMessage('');
 
     try {
       const formData = new FormData();
@@ -76,11 +74,11 @@ function Home() {
         },
       });
 
-      setMessage('✅ 업로드 성공!');
+      toast.success('업로드 성공!');
       setFile(null);
       console.log('Upload response:', response.data);
     } catch (error) {
-      setMessage('❌ 업로드 실패: ' + error.message);
+      toast.error('업로드 실패: ' + error.message);
       console.error('Upload error:', error);
     } finally {
       setUploading(false);
@@ -182,18 +180,6 @@ function Home() {
               {uploading ? '업로드 중...' : '업로드'}
             </button>
 
-            {/* 메시지 */}
-            {message && (
-              <div
-                className={`p-4 rounded-lg ${
-                  message.includes('성공')
-                    ? 'bg-green-50 text-green-700'
-                    : 'bg-red-50 text-red-700'
-                }`}
-              >
-                {message}
-              </div>
-            )}
           </div>
         </div>
 

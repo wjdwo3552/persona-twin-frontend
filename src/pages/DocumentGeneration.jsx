@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axios';
+import { useToast } from '../context/ToastContext';
 
 function DocumentGeneration() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -13,10 +14,10 @@ function DocumentGeneration() {
     referenceDocumentId: ''
   });
   const [generating, setGenerating] = useState(false);
-  const [message, setMessage] = useState('');
   const [generatedDocument, setGeneratedDocument] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
+  const toast = useToast();
 
   // 컴포넌트 마운트 시 문서 목록 조회
   useEffect(() => {
@@ -51,17 +52,16 @@ function DocumentGeneration() {
     e.preventDefault();
 
     if (!formData.topic.trim()) {
-      setMessage('주제를 입력해주세요.');
+      toast.warning('주제를 입력해주세요.');
       return;
     }
 
     if (!formData.referenceDocumentId) {
-      setMessage('참조 문서를 선택해주세요.');
+      toast.warning('참조 문서를 선택해주세요.');
       return;
     }
 
     setGenerating(true);
-    setMessage('');
     setGeneratedDocument(null);
 
     try {
@@ -85,13 +85,13 @@ function DocumentGeneration() {
 
       const response = await api.post('/documents/generate', requestData);
       setGeneratedDocument(response.data);
-      setMessage('문서 생성 완료!');
+      toast.success('문서 생성 완료!');
       console.log('Generated document:', response.data);
     } catch (error) {
       if (error.response && error.response.data) {
-        setMessage('문서 생성 실패: ' + error.response.data);
+        toast.error('문서 생성 실패: ' + error.response.data);
       } else {
-        setMessage('문서 생성 실패: ' + error.message);
+        toast.error('문서 생성 실패: ' + error.message);
       }
       console.error('Generation error:', error);
     } finally {
@@ -120,7 +120,7 @@ function DocumentGeneration() {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('다운로드 실패:', error);
-      setMessage('다운로드에 실패했습니다.');
+      toast.error('다운로드에 실패했습니다.');
     }
   };
 
@@ -135,7 +135,6 @@ function DocumentGeneration() {
       referenceDocumentId: ''
     });
     setGeneratedDocument(null);
-    setMessage('');
   };
 
   return (
@@ -306,19 +305,6 @@ function DocumentGeneration() {
                 {generating ? '생성 중... (1-2분 소요)' : '문서 생성하기'}
               </button>
             </form>
-
-            {/* 메시지 */}
-            {message && (
-              <div
-                className={`mt-4 p-4 rounded-lg ${
-                  message.includes('실패')
-                    ? 'bg-red-50 text-red-700'
-                    : 'bg-green-50 text-green-700'
-                }`}
-              >
-                {message}
-              </div>
-            )}
           </div>
 
           {/* 생성된 문서 미리보기 */}

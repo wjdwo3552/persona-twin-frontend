@@ -5,6 +5,7 @@ import DocumentList from './pages/DocumentList';
 import DocumentGeneration from './pages/DocumentGeneration';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import { ToastProvider } from './context/ToastContext';
 
 function Navigation() {
   const location = useLocation();
@@ -171,16 +172,18 @@ function PrivateRoute({ children }) {
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
-          <Route path="/documents" element={<PrivateRoute><DocumentList /></PrivateRoute>} />
-          <Route path="/generate" element={<PrivateRoute><DocumentGeneration /></PrivateRoute>} />
-        </Routes>
-      </div>
+      <ToastProvider>
+        <div className="min-h-screen bg-gray-50">
+          <Navigation />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+            <Route path="/documents" element={<PrivateRoute><DocumentList /></PrivateRoute>} />
+            <Route path="/generate" element={<PrivateRoute><DocumentGeneration /></PrivateRoute>} />
+          </Routes>
+        </div>
+      </ToastProvider>
     </Router>
   );
 }
