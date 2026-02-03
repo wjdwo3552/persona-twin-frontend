@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 
@@ -12,6 +12,38 @@ function Register() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // 비밀번호 강도 계산
+  const passwordStrength = useMemo(() => {
+    const password = formData.password;
+    if (!password) return { score: 0, label: '', color: '' };
+
+    let score = 0;
+    const checks = {
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+
+    if (checks.length) score++;
+    if (checks.lowercase) score++;
+    if (checks.uppercase) score++;
+    if (checks.number) score++;
+    if (checks.special) score++;
+
+    const levels = [
+      { score: 0, label: '', color: '' },
+      { score: 1, label: '매우 약함', color: 'bg-red-500' },
+      { score: 2, label: '약함', color: 'bg-orange-500' },
+      { score: 3, label: '보통', color: 'bg-yellow-500' },
+      { score: 4, label: '강함', color: 'bg-green-500' },
+      { score: 5, label: '매우 강함', color: 'bg-green-600' }
+    ];
+
+    return { ...levels[score], checks };
+  }, [formData.password]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,8 +61,8 @@ function Register() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('비밀번호는 6자 이상이어야 합니다.');
+    if (passwordStrength.score < 3) {
+      setError('비밀번호가 너무 약합니다. 8자 이상, 영문 대/소문자, 숫자를 포함해주세요.');
       setLoading(false);
       return;
     }
@@ -104,10 +136,39 @@ function Register() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="6자 이상"
+              placeholder="8자 이상, 영문 대/소문자, 숫자 포함"
               required
               className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none"
             />
+            {formData.password && (
+              <div className="mt-2">
+                <div className="flex gap-1 mb-1">
+                  {[1, 2, 3, 4, 5].map((level) => (
+                    <div
+                      key={level}
+                      className={`h-1 flex-1 rounded ${
+                        level <= passwordStrength.score
+                          ? passwordStrength.color
+                          : 'bg-gray-200'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className={`font-medium ${
+                    passwordStrength.score >= 3 ? 'text-green-600' : 'text-red-500'
+                  }`}>
+                    {passwordStrength.label}
+                  </span>
+                  <div className="text-gray-500 space-x-2">
+                    <span className={passwordStrength.checks?.length ? 'text-green-600' : ''}>8자</span>
+                    <span className={passwordStrength.checks?.lowercase ? 'text-green-600' : ''}>소문자</span>
+                    <span className={passwordStrength.checks?.uppercase ? 'text-green-600' : ''}>대문자</span>
+                    <span className={passwordStrength.checks?.number ? 'text-green-600' : ''}>숫자</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
