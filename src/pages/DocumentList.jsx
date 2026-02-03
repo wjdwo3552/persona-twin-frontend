@@ -11,12 +11,28 @@ function DocumentList() {
   const [docContent, setDocContent] = useState(null);
   const [contentLoading, setContentLoading] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [filterType, setFilterType] = useState('');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userId = user.userId;
   const toast = useToast();
 
   const documentTypes = ['보고서', '제안서', '이메일', '기획서', '메모'];
+
+  // 검색어 디바운스 (300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedKeyword(searchKeyword);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchKeyword]);
+
+  // 디바운스된 검색어 또는 필터 변경 시 자동 검색
+  useEffect(() => {
+    if (userId) {
+      fetchDocuments(debouncedKeyword, filterType);
+    }
+  }, [debouncedKeyword, filterType, userId]);
 
   if (!userId) {
     return <Navigate to="/login" replace />;
@@ -37,9 +53,8 @@ function DocumentList() {
 
       const response = await api.get(url);
       setDocuments(response.data);
-    } catch (err) {
+    } catch {
       setError('문서 목록을 불러오는데 실패했습니다.');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -63,8 +78,7 @@ function DocumentList() {
     try {
       const response = await api.get(`/integrated/documents/${documentId}`);
       setDocContent(response.data);
-    } catch (err) {
-      console.error('문서 내용 불러오기 실패:', err);
+    } catch {
       setDocContent({ error: '문서 내용을 불러오는데 실패했습니다.' });
     } finally {
       setContentLoading(false);
@@ -83,9 +97,8 @@ function DocumentList() {
         setDocContent(null);
       }
       toast.success('문서가 삭제되었습니다.');
-    } catch (err) {
+    } catch {
       toast.error('문서 삭제에 실패했습니다.');
-      console.error(err);
     }
   };
 
@@ -113,15 +126,10 @@ function DocumentList() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch {
       toast.error('다운로드에 실패했습니다.');
-      console.error(err);
     }
   };
-
-  useEffect(() => {
-    fetchDocuments();
-  }, []);
 
   // 날짜 포맷팅
   const formatDate = (dateString) => {

@@ -78,7 +78,7 @@ function Home() {
       formData.append('userId', userId);
       formData.append('summarize', summarize);
 
-      const response = await api.post('/documents/upload', formData, {
+      await api.post('/documents/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -86,10 +86,8 @@ function Home() {
 
       toast.success('업로드 성공!');
       setFile(null);
-      console.log('Upload response:', response.data);
     } catch (error) {
       toast.error('업로드 실패: ' + error.message);
-      console.error('Upload error:', error);
     } finally {
       setUploading(false);
     }

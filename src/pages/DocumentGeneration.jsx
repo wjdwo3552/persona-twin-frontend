@@ -38,8 +38,8 @@ function DocumentGeneration() {
     try {
       const response = await api.get(`/mysql/documents/user/${userId}`);
       setDocuments(response.data);
-    } catch (error) {
-      console.error('문서 목록 조회 실패:', error);
+    } catch {
+      // 문서 목록 조회 실패 시 빈 목록 유지
     } finally {
       setLoadingDocs(false);
     }
@@ -88,19 +88,15 @@ function DocumentGeneration() {
         referenceDocumentId: formData.referenceDocumentId ? parseInt(formData.referenceDocumentId) : null
       };
 
-      console.log('Generation request:', requestData);
-
       const response = await api.post('/documents/generate', requestData);
       setGeneratedDocument(response.data);
       toast.success('문서 생성 완료!');
-      console.log('Generated document:', response.data);
     } catch (error) {
       if (error.response && error.response.data) {
         toast.error('문서 생성 실패: ' + error.response.data);
       } else {
         toast.error('문서 생성 실패: ' + error.message);
       }
-      console.error('Generation error:', error);
     } finally {
       setGenerating(false);
     }
@@ -125,8 +121,7 @@ function DocumentGeneration() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('다운로드 실패:', error);
+    } catch {
       toast.error('다운로드에 실패했습니다.');
     }
   };
