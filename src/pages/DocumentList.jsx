@@ -13,6 +13,8 @@ function DocumentList() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [filterType, setFilterType] = useState('');
+  const [deleteModal, setDeleteModal] = useState({ show: false, document: null });
+  const [deleting, setDeleting] = useState(false);
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userId = user.userId;
   const toast = useToast();
@@ -85,9 +87,22 @@ function DocumentList() {
     }
   };
 
-  // 문서 삭제
-  const deleteDocument = async (documentId) => {
-    if (!confirm('정말 이 문서를 삭제하시겠습니까?')) return;
+  // 삭제 모달 열기
+  const openDeleteModal = (doc) => {
+    setDeleteModal({ show: true, document: doc });
+  };
+
+  // 삭제 모달 닫기
+  const closeDeleteModal = () => {
+    setDeleteModal({ show: false, document: null });
+  };
+
+  // 문서 삭제 실행
+  const confirmDelete = async () => {
+    if (!deleteModal.document) return;
+
+    const documentId = deleteModal.document.documentId;
+    setDeleting(true);
 
     try {
       await api.delete(`/mysql/documents/${documentId}`);
@@ -97,8 +112,11 @@ function DocumentList() {
         setDocContent(null);
       }
       toast.success('문서가 삭제되었습니다.');
+      closeDeleteModal();
     } catch {
       toast.error('문서 삭제에 실패했습니다.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -231,11 +249,41 @@ function DocumentList() {
             ) : error ? (
               <div className="text-center py-10 text-red-500">{error}</div>
             ) : documents.length === 0 ? (
-              <div className="text-center py-10 text-gray-500">
-                <p>업로드된 문서가 없습니다.</p>
-                <a href="/" className="text-indigo-600 hover:underline mt-2 inline-block">
-                  문서 업로드하기
-                </a>
+              <div className="text-center py-16">
+                {searchKeyword || filterType ? (
+                  // 검색 결과 없음
+                  <>
+                    <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <p className="text-gray-500 text-lg mb-2">검색 결과가 없습니다</p>
+                    <p className="text-gray-400 text-sm mb-4">다른 검색어나 필터를 시도해보세요</p>
+                    <button
+                      onClick={handleReset}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    >
+                      필터 초기화
+                    </button>
+                  </>
+                ) : (
+                  // 문서가 아예 없음
+                  <>
+                    <svg className="w-20 h-20 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p className="text-gray-600 text-lg font-medium mb-2">아직 업로드된 문서가 없습니다</p>
+                    <p className="text-gray-400 text-sm mb-6">첫 번째 문서를 업로드하여 시작하세요</p>
+                    <a
+                      href="/"
+                      className="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      문서 업로드하기
+                    </a>
+                  </>
+                )}
               </div>
             ) : (
               <div className="space-y-3 max-h-[600px] overflow-y-auto">
@@ -266,7 +314,7 @@ function DocumentList() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          deleteDocument(doc.documentId);
+                          openDeleteModal(doc);
                         }}
                         className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                         title="삭제"
@@ -406,6 +454,53 @@ function DocumentList() {
           </div>
         </div>
       </div>
+
+      {/* 삭제 확인 모달 */}
+      {deleteModal.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          {/* 배경 오버레이 */}
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={closeDeleteModal}
+          />
+
+          {/* 모달 */}
+          <div className="relative bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 animate-in fade-in zoom-in duration-200">
+            <div className="text-center">
+              {/* 경고 아이콘 */}
+              <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+
+              <h3 className="text-xl font-bold text-gray-800 mb-2">문서 삭제</h3>
+              <p className="text-gray-600 mb-2">정말 이 문서를 삭제하시겠습니까?</p>
+              <p className="text-sm text-gray-500 bg-gray-100 rounded-lg px-3 py-2 mb-6 truncate">
+                {deleteModal.document?.title}
+              </p>
+
+              {/* 버튼 */}
+              <div className="flex gap-3">
+                <button
+                  onClick={closeDeleteModal}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium disabled:bg-red-400"
+                >
+                  {deleting ? '삭제 중...' : '삭제'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
