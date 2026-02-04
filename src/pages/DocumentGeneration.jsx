@@ -3,6 +3,35 @@ import { Navigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 
+// 문서 타입별 정보
+const DOCUMENT_TYPE_INFO = {
+  '보고서': {
+    description: '객관적인 데이터 분석과 결론을 도출하는 공식 문서',
+    structure: ['개요', '현황 분석', '문제점 및 원인', '개선 방안', '결론 및 제언'],
+    icon: '📊'
+  },
+  '제안서': {
+    description: '문제 해결을 위한 아이디어와 실행 계획을 제시하는 문서',
+    structure: ['배경 및 목적', '현황 분석', '제안 내용', '기대 효과', '실행 계획'],
+    icon: '💡'
+  },
+  '이메일': {
+    description: '업무 커뮤니케이션을 위한 간결한 메시지 형식',
+    structure: ['인사말', '본문 (목적/내용)', '요청 사항', '마무리 인사'],
+    icon: '✉️'
+  },
+  '기획서': {
+    description: '프로젝트나 사업의 방향과 세부 계획을 담은 문서',
+    structure: ['기획 배경', '목표 및 방향', '세부 계획', '일정 및 예산', '기대 효과'],
+    icon: '📋'
+  },
+  '메모': {
+    description: '간단한 정보 전달이나 기록을 위한 짧은 문서',
+    structure: ['제목/주제', '핵심 내용', '참고 사항'],
+    icon: '📝'
+  }
+};
+
 function DocumentGeneration() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userId = user.userId;
@@ -193,6 +222,28 @@ function DocumentGeneration() {
                   <option value="기획서">기획서</option>
                   <option value="메모">메모</option>
                 </select>
+
+                {/* 문서 타입 설명 및 구조 미리보기 */}
+                {DOCUMENT_TYPE_INFO[formData.documentType] && (
+                  <div className="mt-3 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                    <div className="flex items-start gap-3">
+                      <span className="text-2xl">{DOCUMENT_TYPE_INFO[formData.documentType].icon}</span>
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-700 mb-2">
+                          {DOCUMENT_TYPE_INFO[formData.documentType].description}
+                        </p>
+                        <div className="text-xs text-gray-600">
+                          <span className="font-semibold">예상 구조:</span>
+                          <ol className="mt-1 ml-4 list-decimal space-y-0.5">
+                            {DOCUMENT_TYPE_INFO[formData.documentType].structure.map((item, idx) => (
+                              <li key={idx}>{item}</li>
+                            ))}
+                          </ol>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* 키워드 */}
