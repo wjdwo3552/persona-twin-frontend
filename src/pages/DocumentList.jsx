@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
@@ -13,6 +13,7 @@ function DocumentList() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [filterType, setFilterType] = useState('');
+  const [sortBy, setSortBy] = useState('date-desc');
   const [deleteModal, setDeleteModal] = useState({ show: false, document: null });
   const [deleting, setDeleting] = useState(false);
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -20,6 +21,33 @@ function DocumentList() {
   const toast = useToast();
 
   const documentTypes = ['보고서', '제안서', '이메일', '기획서', '메모'];
+
+  const sortOptions = [
+    { value: 'date-desc', label: '최신순' },
+    { value: 'date-asc', label: '오래된순' },
+    { value: 'title-asc', label: '제목 (가나다순)' },
+    { value: 'title-desc', label: '제목 (역순)' },
+    { value: 'type', label: '타입별' },
+  ];
+
+  // 정렬된 문서 목록
+  const sortedDocuments = useMemo(() => {
+    const sorted = [...documents];
+    switch (sortBy) {
+      case 'date-desc':
+        return sorted.sort((a, b) => new Date(b.uploadDate) - new Date(a.uploadDate));
+      case 'date-asc':
+        return sorted.sort((a, b) => new Date(a.uploadDate) - new Date(b.uploadDate));
+      case 'title-asc':
+        return sorted.sort((a, b) => (a.title || '').localeCompare(b.title || '', 'ko'));
+      case 'title-desc':
+        return sorted.sort((a, b) => (b.title || '').localeCompare(a.title || '', 'ko'));
+      case 'type':
+        return sorted.sort((a, b) => (a.documentType || '').localeCompare(b.documentType || '', 'ko'));
+      default:
+        return sorted;
+    }
+  }, [documents, sortBy]);
 
   // 검색어 디바운스 (300ms)
   useEffect(() => {
@@ -218,6 +246,15 @@ function DocumentList() {
                   <option key={type} value={type}>{type}</option>
                 ))}
               </select>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-indigo-500"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
               <button
                 onClick={handleSearch}
                 className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors"
@@ -287,7 +324,7 @@ function DocumentList() {
               </div>
             ) : (
               <div className="space-y-3 max-h-[600px] overflow-y-auto">
-                {documents.map((doc) => (
+                {sortedDocuments.map((doc) => (
                   <div
                     key={doc.documentId}
                     onClick={() => handleSelectDoc(doc)}

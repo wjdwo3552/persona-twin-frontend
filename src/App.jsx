@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Home from './pages/Home';
 import DocumentList from './pages/DocumentList';
 import DocumentGeneration from './pages/DocumentGeneration';
+import TokenUsage from './pages/TokenUsage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import { ToastProvider } from './context/ToastContext';
@@ -80,6 +81,16 @@ function Navigation() {
             >
               생성
             </Link>
+            <Link
+              to="/usage"
+              className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                isActive('/usage')
+                  ? 'bg-indigo-600 text-white shadow-lg'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              사용량
+            </Link>
 
             {/* 사용자 정보 & 로그아웃 */}
             {user && (
@@ -144,6 +155,16 @@ function Navigation() {
               >
                 문서 생성
               </Link>
+              <Link
+                to="/usage"
+                className={`px-4 py-3 rounded-lg font-semibold transition-all ${
+                  isActive('/usage')
+                    ? 'bg-indigo-600 text-white'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                토큰 사용량
+              </Link>
               {user && (
                 <div className="pt-2 mt-2 border-t border-gray-200 flex items-center justify-between px-4">
                   <span className="text-sm text-gray-600">{user.username}</span>
@@ -181,6 +202,7 @@ function App() {
             <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
             <Route path="/documents" element={<PrivateRoute><DocumentList /></PrivateRoute>} />
             <Route path="/generate" element={<PrivateRoute><DocumentGeneration /></PrivateRoute>} />
+            <Route path="/usage" element={<PrivateRoute><TokenUsage /></PrivateRoute>} />
           </Routes>
         </div>
       </ToastProvider>
