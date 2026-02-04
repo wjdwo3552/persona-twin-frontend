@@ -48,7 +48,18 @@ function DocumentGeneration() {
   const [documents, setDocuments] = useState([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [templates, setTemplates] = useState([]);
+  const [templateName, setTemplateName] = useState('');
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
   const toast = useToast();
+
+  // 템플릿 로드 (localStorage)
+  useEffect(() => {
+    const savedTemplates = localStorage.getItem('documentTemplates');
+    if (savedTemplates) {
+      setTemplates(JSON.parse(savedTemplates));
+    }
+  }, []);
 
   // 컴포넌트 마운트 시 문서 목록 조회
   useEffect(() => {
@@ -183,6 +194,55 @@ function DocumentGeneration() {
     setGeneratedDocument(null);
   };
 
+  // 템플릿 저장
+  const handleSaveTemplate = () => {
+    if (!templateName.trim()) {
+      toast.warning('템플릿 이름을 입력해주세요.');
+      return;
+    }
+
+    const newTemplate = {
+      id: Date.now(),
+      name: templateName.trim(),
+      documentType: formData.documentType,
+      keywords: formData.keywords,
+      length: formData.length,
+      additionalInstructions: formData.additionalInstructions,
+      referenceDocumentId: formData.referenceDocumentId
+    };
+
+    const updatedTemplates = [...templates, newTemplate];
+    setTemplates(updatedTemplates);
+    localStorage.setItem('documentTemplates', JSON.stringify(updatedTemplates));
+    setTemplateName('');
+    setShowSaveTemplate(false);
+    toast.success('템플릿이 저장되었습니다!');
+  };
+
+  // 템플릿 불러오기
+  const handleLoadTemplate = (templateId) => {
+    const template = templates.find(t => t.id === parseInt(templateId));
+    if (template) {
+      setFormData(prev => ({
+        ...prev,
+        documentType: template.documentType,
+        keywords: template.keywords,
+        length: template.length,
+        additionalInstructions: template.additionalInstructions,
+        referenceDocumentId: template.referenceDocumentId || ''
+      }));
+      toast.success(`"${template.name}" 템플릿을 불러왔습니다.`);
+    }
+  };
+
+  // 템플릿 삭제
+  const handleDeleteTemplate = (templateId) => {
+    const updatedTemplates = templates.filter(t => t.id !== templateId);
+    setTemplates(updatedTemplates);
+    localStorage.setItem('documentTemplates', JSON.stringify(updatedTemplates));
+    toast.success('템플릿이 삭제되었습니다.');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
@@ -199,9 +259,78 @@ function DocumentGeneration() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* 입력 폼 */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              문서 생성 설정
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                문서 생성 설정
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowSaveTemplate(!showSaveTemplate)}
+                className="px-3 py-1.5 text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg transition-colors"
+              >
+                템플릿 저장
+              </button>
+            </div>
+
+            {/* 템플릿 저장 모달 */}
+            {showSaveTemplate && (
+              <div className="mb-6 p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                <h3 className="text-sm font-semibold text-indigo-800 mb-3">현재 설정을 템플릿으로 저장</h3>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    placeholder="템플릿 이름"
+                    className="flex-1 px-3 py-2 border border-indigo-300 rounded-lg text-sm focus:outline-none focus:border-indigo-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleSaveTemplate}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors"
+                  >
+                    저장
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowSaveTemplate(false)}
+                    className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm transition-colors"
+                  >
+                    취소
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 템플릿 불러오기 */}
+            {templates.length > 0 && (
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">저장된 템플릿</h3>
+                <div className="flex flex-wrap gap-2">
+                  {templates.map((template) => (
+                    <div key={template.id} className="flex items-center gap-1 bg-white border border-gray-300 rounded-lg overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => handleLoadTemplate(template.id)}
+                        className="px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        {template.name}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteTemplate(template.id)}
+                        className="px-2 py-1.5 text-red-500 hover:bg-red-50 transition-colors"
+                        title="삭제"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <form onSubmit={handleGenerate} className="space-y-6">
               {/* 주제 */}
