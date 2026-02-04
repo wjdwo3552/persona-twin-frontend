@@ -47,6 +47,7 @@ function DocumentGeneration() {
   const [generatedDocument, setGeneratedDocument] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [loadingDocs, setLoadingDocs] = useState(false);
+  const [copied, setCopied] = useState(false);
   const toast = useToast();
 
   // 컴포넌트 마운트 시 문서 목록 조회
@@ -152,6 +153,20 @@ function DocumentGeneration() {
       URL.revokeObjectURL(url);
     } catch {
       toast.error('다운로드에 실패했습니다.');
+    }
+  };
+
+  // 클립보드 복사
+  const handleCopy = async () => {
+    if (!generatedDocument?.content) return;
+
+    try {
+      await navigator.clipboard.writeText(generatedDocument.content);
+      setCopied(true);
+      toast.success('클립보드에 복사되었습니다!');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error('복사에 실패했습니다.');
     }
   };
 
@@ -368,6 +383,30 @@ function DocumentGeneration() {
               </h2>
               {generatedDocument && (
                 <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={handleCopy}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                      copied
+                        ? 'bg-green-600 text-white'
+                        : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                    }`}
+                  >
+                    {copied ? (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        복사됨
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        복사
+                      </>
+                    )}
+                  </button>
                   <button
                     onClick={() => handleDownload('txt')}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-all"
