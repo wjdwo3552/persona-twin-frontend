@@ -558,7 +558,26 @@ function DocumentGeneration() {
               )}
             </div>
 
-            {generatedDocument ? (
+            {generating ? (
+              // 생성 중 로딩 애니메이션
+              <div className="h-full flex items-center justify-center">
+                <div className="text-center">
+                  <div className="relative w-24 h-24 mx-auto mb-6">
+                    <div className="absolute inset-0 border-4 border-green-200 rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-green-600 rounded-full border-t-transparent animate-spin"></div>
+                    <div className="absolute inset-3 border-4 border-blue-200 rounded-full"></div>
+                    <div className="absolute inset-3 border-4 border-blue-600 rounded-full border-b-transparent animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+                  </div>
+                  <p className="text-xl font-semibold text-gray-700 mb-2">문서 생성 중...</p>
+                  <p className="text-gray-500 mb-4">AI가 문서를 작성하고 있습니다</p>
+                  <div className="flex justify-center gap-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              </div>
+            ) : generatedDocument ? (
               <div className="space-y-4">
                 {/* 문서 정보 */}
                 <div className="bg-gradient-to-r from-green-50 to-blue-50 p-4 rounded-lg border border-green-200">

@@ -276,13 +276,18 @@ function DocumentList() {
             </div>
 
             {loading ? (
-              <div className="space-y-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="p-4 rounded-lg border border-gray-200 animate-pulse">
-                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
-                    <div className="flex items-center gap-2">
-                      <div className="h-5 bg-gray-200 rounded-full w-16"></div>
-                      <div className="h-4 bg-gray-200 rounded w-24"></div>
+              <div className="space-y-3 animate-pulse">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="p-4 rounded-lg border border-gray-200">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1 space-y-2">
+                        <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+                        <div className="flex items-center gap-2">
+                          <div className="h-5 bg-gray-200 rounded-full w-16"></div>
+                          <div className="h-4 bg-gray-200 rounded w-28"></div>
+                        </div>
+                      </div>
+                      <div className="w-9 h-9 bg-gray-200 rounded-lg"></div>
                     </div>
                   </div>
                 ))}
