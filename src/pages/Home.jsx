@@ -106,7 +106,7 @@ function Home() {
         {/* 헤더 */}
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="text-3xl sm:text-5xl font-bold text-gray-800 mb-4">
-            Persona Twin
+            DocAI
           </h1>
           <p className="text-base sm:text-xl text-gray-600">
             AI가 당신의 문체를 학습해서 문서를 작성합니다

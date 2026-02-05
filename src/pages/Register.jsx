@@ -92,7 +92,7 @@ function Register() {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-indigo-600">Persona Twin</h1>
+          <h1 className="text-3xl font-bold text-indigo-600">DocAI</h1>
           <p className="text-gray-600 mt-2">새 계정을 만들어보세요</p>
         </div>
 

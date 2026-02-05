@@ -46,7 +46,7 @@ function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* 로고 */}
           <Link to="/" className="flex items-center space-x-2">
-            <span className="text-xl sm:text-2xl font-bold text-indigo-600">Persona Twin</span>
+            <span className="text-xl sm:text-2xl font-bold text-indigo-600">DocAI</span>
           </Link>
 
           {/* 데스크톱 메뉴 */}
