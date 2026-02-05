@@ -38,6 +38,14 @@ function TokenUsage() {
     return num.toLocaleString();
   };
 
+  // 토큰을 예상 비용(원)으로 변환 (GPT-4o 기준 대략 1000토큰 = 7원)
+  const tokenToCost = (tokens) => {
+    if (!tokens) return '0';
+    const cost = (tokens / 1000) * 7;
+    if (cost < 1) return '1원 미만';
+    return `약 ${Math.round(cost).toLocaleString()}원`;
+  };
+
   // 날짜 포맷팅
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -149,7 +157,7 @@ function TokenUsage() {
                 <div>
                   <p className="text-sm text-gray-500 mb-1">총 사용량</p>
                   <p className="text-2xl font-bold text-gray-800">{formatNumber(stats.totalTokens)}</p>
-                  <p className="text-xs text-gray-400 mt-1">토큰</p>
+                  <p className="text-xs text-indigo-500 mt-1">{tokenToCost(stats.totalTokens)}</p>
                 </div>
                 <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
                   <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,7 +172,7 @@ function TokenUsage() {
                 <div>
                   <p className="text-sm text-gray-500 mb-1">오늘 사용량</p>
                   <p className="text-2xl font-bold text-green-600">{formatNumber(stats.todayTokens)}</p>
-                  <p className="text-xs text-gray-400 mt-1">토큰</p>
+                  <p className="text-xs text-green-500 mt-1">{tokenToCost(stats.todayTokens)}</p>
                 </div>
                 <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                   <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,7 +187,7 @@ function TokenUsage() {
                 <div>
                   <p className="text-sm text-gray-500 mb-1">이번 달</p>
                   <p className="text-2xl font-bold text-blue-600">{formatNumber(stats.monthlyTokens)}</p>
-                  <p className="text-xs text-gray-400 mt-1">토큰</p>
+                  <p className="text-xs text-blue-500 mt-1">{tokenToCost(stats.monthlyTokens)}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
                   <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,7 +225,11 @@ function TokenUsage() {
                         {getOperationLabel(type)}
                       </span>
                     </div>
-                    <span className="text-lg font-semibold text-gray-800">{formatNumber(tokens)} 토큰</span>
+                    <div className="text-right">
+                      <span className="text-lg font-semibold text-gray-800">{formatNumber(tokens)}</span>
+                      <span className="text-xs text-gray-500 ml-1">토큰</span>
+                      <p className="text-xs text-gray-400">{tokenToCost(tokens)}</p>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -241,9 +253,10 @@ function TokenUsage() {
                           style={{ width: `${percentage}%` }}
                         />
                       </div>
-                      <span className="w-24 text-right text-sm font-medium text-gray-700">
-                        {formatNumber(day.tokens)}
-                      </span>
+                      <div className="w-28 text-right">
+                        <span className="text-sm font-medium text-gray-700">{formatNumber(day.tokens)}</span>
+                        <p className="text-xs text-gray-400">{tokenToCost(day.tokens)}</p>
+                      </div>
                     </div>
                   );
                 })}
@@ -263,6 +276,7 @@ function TokenUsage() {
                       <th className="pb-3 font-medium">프롬프트</th>
                       <th className="pb-3 font-medium">완성</th>
                       <th className="pb-3 font-medium">총 토큰</th>
+                      <th className="pb-3 font-medium">예상 비용</th>
                       <th className="pb-3 font-medium">일시</th>
                     </tr>
                   </thead>
@@ -277,6 +291,7 @@ function TokenUsage() {
                         <td className="py-3 text-gray-600">{formatNumber(usage.promptTokens)}</td>
                         <td className="py-3 text-gray-600">{formatNumber(usage.completionTokens)}</td>
                         <td className="py-3 font-medium text-gray-800">{formatNumber(usage.totalTokens)}</td>
+                        <td className="py-3 text-indigo-600 font-medium">{tokenToCost(usage.totalTokens)}</td>
                         <td className="py-3 text-gray-500">{formatDate(usage.createdAt)}</td>
                       </tr>
                     ))}
