@@ -3,6 +3,111 @@ import { Navigate } from 'react-router-dom';
 import api from '../api/axios';
 import { useToast } from '../context/ToastContext';
 
+// 기본 제공 문서 템플릿
+const PRESET_TEMPLATES = [
+  {
+    id: 'self-intro',
+    name: '자기소개서',
+    icon: '👤',
+    category: '취업',
+    documentType: '보고서',
+    topic: '자기소개서',
+    keywords: '성장과정, 지원동기, 역량, 포부',
+    length: 'long',
+    additionalInstructions: `다음 구조로 작성해주세요:
+1. 성장과정 - 가치관 형성에 영향을 준 경험
+2. 성격의 장단점 - 구체적인 사례 포함
+3. 지원동기 - 회사/직무에 대한 관심과 이유
+4. 입사 후 포부 - 구체적인 목표와 계획`
+  },
+  {
+    id: 'meeting-minutes',
+    name: '회의록',
+    icon: '📋',
+    category: '업무',
+    documentType: '메모',
+    topic: '회의록',
+    keywords: '안건, 결정사항, 액션아이템',
+    length: 'medium',
+    additionalInstructions: `다음 형식으로 작성해주세요:
+- 회의 정보: 일시, 장소, 참석자
+- 안건: 논의 주제 목록
+- 논의 내용: 각 안건별 논의 사항
+- 결정 사항: 합의된 내용
+- 액션 아이템: 담당자, 기한 포함`
+  },
+  {
+    id: 'weekly-report',
+    name: '주간업무보고',
+    icon: '📊',
+    category: '업무',
+    documentType: '보고서',
+    topic: '주간 업무 보고',
+    keywords: '금주실적, 차주계획, 이슈',
+    length: 'medium',
+    additionalInstructions: `다음 구조로 작성해주세요:
+1. 금주 주요 실적
+   - 완료된 업무 목록
+   - 진행률 및 성과
+2. 차주 계획
+   - 예정된 업무
+   - 목표 및 일정
+3. 이슈 및 건의사항`
+  },
+  {
+    id: 'project-proposal',
+    name: '프로젝트 제안서',
+    icon: '💡',
+    category: '기획',
+    documentType: '제안서',
+    topic: '프로젝트 제안',
+    keywords: '목표, 범위, 일정, 예산',
+    length: 'long',
+    additionalInstructions: `다음 구조로 작성해주세요:
+1. 프로젝트 개요
+2. 배경 및 필요성
+3. 목표 및 기대효과
+4. 추진 전략 및 방법
+5. 세부 일정
+6. 소요 예산
+7. 리스크 및 대응방안`
+  },
+  {
+    id: 'business-email',
+    name: '업무 이메일',
+    icon: '✉️',
+    category: '커뮤니케이션',
+    documentType: '이메일',
+    topic: '업무 협조 요청',
+    keywords: '요청, 협조, 회신',
+    length: 'short',
+    additionalInstructions: `비즈니스 이메일 형식으로 작성해주세요:
+- 정중하고 명확한 어조
+- 요청 사항을 구체적으로 명시
+- 기한이 있다면 명확히 표기
+- 감사 인사로 마무리`
+  },
+  {
+    id: 'handover',
+    name: '업무 인수인계서',
+    icon: '🔄',
+    category: '업무',
+    documentType: '보고서',
+    topic: '업무 인수인계',
+    keywords: '담당업무, 진행현황, 주의사항',
+    length: 'long',
+    additionalInstructions: `다음 구조로 작성해주세요:
+1. 담당 업무 개요
+2. 주요 업무별 상세 설명
+   - 업무 내용
+   - 관련 시스템/도구
+   - 주요 연락처
+3. 현재 진행 중인 업무
+4. 정기 업무 일정
+5. 주의사항 및 노하우`
+  }
+];
+
 // 문서 타입별 정보
 const DOCUMENT_TYPE_INFO = {
   '보고서': {
@@ -243,6 +348,19 @@ function DocumentGeneration() {
     toast.success('템플릿이 삭제되었습니다.');
   };
 
+  // 기본 제공 템플릿 적용
+  const handleApplyPresetTemplate = (template) => {
+    setFormData(prev => ({
+      ...prev,
+      topic: template.topic,
+      documentType: template.documentType,
+      keywords: template.keywords,
+      length: template.length,
+      additionalInstructions: template.additionalInstructions
+    }));
+    toast.success(`"${template.name}" 템플릿이 적용되었습니다.`);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-100 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
@@ -259,6 +377,31 @@ function DocumentGeneration() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* 입력 폼 */}
           <div className="bg-white rounded-2xl shadow-xl p-8">
+            {/* 기본 제공 템플릿 */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">빠른 시작 템플릿</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {PRESET_TEMPLATES.map((template) => (
+                  <button
+                    key={template.id}
+                    type="button"
+                    onClick={() => handleApplyPresetTemplate(template)}
+                    className="flex items-center gap-2 p-3 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-green-50 hover:to-blue-50 border border-gray-200 hover:border-green-300 rounded-lg transition-all text-left group"
+                  >
+                    <span className="text-xl flex-shrink-0">{template.icon}</span>
+                    <div>
+                      <p className="text-sm font-medium text-gray-800 group-hover:text-green-700">
+                        {template.name}
+                      </p>
+                      <p className="text-xs text-gray-400">{template.category}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <hr className="border-gray-200 mb-6" />
+
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-800">
                 문서 생성 설정
