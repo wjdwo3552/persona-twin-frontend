@@ -16,16 +16,6 @@ function ApiKeys() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const toast = useToast();
 
-  useEffect(() => {
-    if (userId) {
-      fetchApiKeys();
-    }
-  }, [userId]);
-
-  if (!userId) {
-    return <Navigate to="/login" replace />;
-  }
-
   const fetchApiKeys = async () => {
     setLoading(true);
     try {
@@ -37,6 +27,16 @@ function ApiKeys() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (userId) {
+      fetchApiKeys();
+    }
+  }, [userId]);
+
+  if (!userId) {
+    return <Navigate to="/login" replace />;
+  }
 
   const handleCreateKey = async () => {
     if (!newKeyName.trim()) {
